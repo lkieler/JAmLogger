@@ -1,0 +1,123 @@
+from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivymd.app import MDApp
+from kivymd.uix.button import MDIconButton
+from kivymd.uix.label import MDLabel
+from kivymd.uix.list import MDList, OneLineListItem
+from kivymd.uix.scrollview import MDScrollView
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.textfield import MDTextField
+import json
+
+KV = '''
+ScreenManager:
+    HomeScreen:
+    LogEntryScreen:
+
+<HomeScreen>:
+    name: 'home'
+    BoxLayout:
+        orientation: 'vertical'
+        
+        BoxLayout:
+            size_hint_y: None
+            height: '48dp'
+            
+            MDIconButton:
+                icon: "information"
+                on_release: root.show_info_dialog()
+            
+            MDLabel:
+                text: "JAmLogger"
+                halign: "center"
+            
+            MDIconButton:
+                icon: "plus"
+                on_release: app.root.current = 'log_entry'
+        
+        MDScrollView:
+            MDList:
+                id: log_list
+
+<LogEntryScreen>:
+    name: 'log_entry'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+
+        MDTextField:
+            id: textbox1
+            hint_text: "Enter text for key1"
+        
+        MDTextField:
+            id: textbox2
+            hint_text: "Enter text for key2"
+        
+        MDTextField:
+            id: textbox3
+            hint_text: "Enter text for key3"
+        
+        MDTextField:
+            id: textbox4
+            hint_text: "Enter text for key4"
+        
+        MDTextField:
+            id: textbox5
+            hint_text: "Enter text for key5"
+        
+        MDRaisedButton:
+            text: "Save"
+            on_release: root.save_log_entry()
+        
+        MDRaisedButton:
+            text: "Back to Home"
+            on_release: app.root.current = 'home'
+'''
+
+class HomeScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.info_dialog = None
+    
+    def add_log_entry(self, *args):
+        new_item = OneLineListItem(text="New Log Entry")
+        self.ids.log_list.add_widget(new_item)
+    
+    def show_info_dialog(self, *args):
+        if not self.info_dialog:
+            self.info_dialog = MDDialog(
+                text="Hello world",
+                buttons=[
+                    MDRaisedButton(
+                        text="Close",
+                        on_release=lambda x: self.info_dialog.dismiss()
+                    )
+                ]
+            )
+        self.info_dialog.open()
+
+class LogEntryScreen(Screen):
+    def save_log_entry(self):
+        data = {
+            "key1": self.ids.textbox1.text,
+            "key2": self.ids.textbox2.text,
+            "key3": self.ids.textbox3.text,
+            "key4": self.ids.textbox4.text,
+            "key5": self.ids.textbox5.text,
+        }
+        with open("log_data.json", "w") as f:
+            json.dump(data, f)
+        # Reset text fields after saving
+        for key in ['textbox1', 'textbox2', 'textbox3', 'textbox4', 'textbox5']:
+            self.ids[key].text = ""
+
+class JAmLoggerApp(MDApp):
+    def build(self):
+        return Builder.load_string(KV)
+
+if __name__ == '__main__':
+    JAmLoggerApp().run()
+

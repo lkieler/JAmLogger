@@ -1,0 +1,24 @@
+{
+    "counter": 3,
+    "entry_0": {
+        "key1": "aa",
+        "key2": "ee",
+        "key3": "bb",
+        "key4": "",
+        "key5": ""
+    },
+    "entry_1": {
+        "key1": "cc",
+        "key2": "oo",
+        "key3": "99",
+        "key4": "",
+        "key5": ""
+    },
+    "entry_2": {
+        "key1": "",
+        "key2": "",
+        "key3": "",
+        "key4": "",
+        "key5": "aa"
+    }
+}
