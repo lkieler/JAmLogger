@@ -31,7 +31,7 @@ import json
 import os
 
 KV = '''
-MDScreenManager:
+MDScreenManager: 
     md_bg_color: self.theme_cls.backgroundColor
     HomeScreen:
     LogEntryScreen:
@@ -52,6 +52,7 @@ MDScreenManager:
         orientation: 'horizontal'
         MDBoxLayout:
             orientation: 'vertical'
+            spacing: '10dp'
             MDLabel:
                 id: primary_text
                 text: "Primary Text"
@@ -63,7 +64,8 @@ MDScreenManager:
                 id: tertiary_text
                 text: "Tertiary Text"
         MDIconButton:
-            icon: "plus"
+            icon: "pencil"
+            id: edit_entry
                 
 
 <HomeScreen>:
@@ -82,7 +84,8 @@ MDScreenManager:
                 halign: "center"
             MDIconButton:
                 icon: "plus"
-                on_release: app.root.current = 'log_entry'
+                #on_release: app.root.current = 'log_entry'
+                on_release: app.switch_to_screen('log_entry', direction="left")
         MDBoxLayout:
             orientation: 'vertical'
             spacing: '10dp'
@@ -109,7 +112,10 @@ MDScreenManager:
             orientation: 'horizontal'
             MDButton:
                 style: "elevated"
-                on_release: app.root.current = 'home'
+                on_release: 
+                    #app.root.current = 'home'
+                    app.switch_to_screen('home', direction="right")
+                    root.clear_entries()
                 MDButtonIcon:
                     icon: 'home'
                 MDButtonText:
@@ -246,8 +252,9 @@ class HomeScreen(Screen):
                         new_item = LogEntryItem(
                             primary_text=f"Entry {entry_key}:   Time: {entry_value['time']}",
                             secondary_text=f"Call: {entry_value['callsign']}    QRG: {entry_value['qrg']}   Mode: {entry_value['mode']}", 
-                            tertiary_text=f"QTH: {entry_value['qth']}   State: {entry_value['state']}   Country: {entry_value['country']}"
+                            tertiary_text=f"QTH: {entry_value['qth']}   State: {entry_value['state']}  Country: {entry_value['country']}"
                         )
+                        new_item.ids.edit_entry.bind(on_release=lambda x, ek=entry_key, ev=entry_value: self.edit_entry(ek, ev))
                         self.ids.log_list.add_widget(new_item)
 
     def show_info_dialog(self, *args):
@@ -279,6 +286,10 @@ class HomeScreen(Screen):
         self.ids.log_list.add_widget(
             OneLineListItem(text=f"Entry {entry_key}: {entry_value['callsign']}")
         )
+
+    def edit_entry(self, entry_key, entry_value):
+        log_entry_screen = self.manager.get_screen('log_entry')
+        log_entry_screen.load_entry(entry_value)
 
 class LogEntryScreen(Screen):
     log_file = "log_data.json"
@@ -330,6 +341,29 @@ class LogEntryScreen(Screen):
         current_time = datetime.now().strftime('%d.%m.%Y %H:%M:00 ') + now.tzname()
         self.ids.time.text = current_time
 
+    def load_entry(self, entry_value):
+        self.ids.time.text = entry_value['time']
+        self.ids.callsign.text = entry_value['callsign']
+        self.ids.qrg.text = entry_value['qrg']
+        self.ids.mode.text = entry_value['mode']
+        self.ids.srst.text = entry_value['srst']
+        self.ids.trst.text = entry_value['trst']
+        self.ids.qth.text = entry_value['qth']
+        self.ids.state.text = entry_value['state']
+        self.ids.country.text = entry_value['country']
+        self.ids.notes.text = entry_value['notes']
+
+    def clear_entries(self):
+        self.ids.time.text = ""
+        self.ids.callsign.text = ""
+        self.ids.qrg.text = ""
+        self.ids.mode.text = ""
+        self.ids.srst.text = ""
+        self.ids.trst.text = ""
+        self.ids.qth.text = ""
+        self.ids.state.text = ""
+        self.ids.country.text = ""
+        self.ids.notes.text = ""
 
 
 class JAmLoggerApp(MDApp):
@@ -337,8 +371,22 @@ class JAmLoggerApp(MDApp):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Purple"
         self.root = Builder.load_string(KV)
-        self.root.transition = NoTransition()
+        self.root.transition = MDSlideTransition(direction="up")  # Set the initial direction to up
         return self.root
+
+    def switch_to_screen(self, screen_name, direction="up", duration=0.05, transition_type="slide"):
+        transition_classes = {
+            "slide": MDSlideTransition,
+            #"fade": MDFadeTransition,
+            #"no": MDNoTransition,
+            #"swap": MDSwapTransition,
+            #"card": MDCardTransition,
+        }
+
+        transition_class = transition_classes.get(transition_type, MDSlideTransition)
+        self.root.transition = transition_class(direction=direction, duration=duration)
+        self.root.current = screen_name
+
 
 if __name__ == '__main__':
     JAmLoggerApp().run()
