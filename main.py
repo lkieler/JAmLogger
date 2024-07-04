@@ -8,12 +8,6 @@ from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.transition import MDSlideTransition
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.list import MDList
-#from kivymd.uix.list import OneLineListItem, MDList
-#from kivymd.uix.list import OneLineListItem
-#from kivymd.uix.button import MDIconButton
-#from kivymd.uix.label import MDLabel
-#from kivymd.uix.list import MDList, OneLineListItem
-#from kivymd.uix.scrollview import MDScrollView
 from kivymd.uix.dialog import (
     MDDialog,
     MDDialogIcon,
@@ -22,9 +16,6 @@ from kivymd.uix.dialog import (
     MDDialogButtonContainer,
     MDDialogContentContainer,
 )
-#from kivymd.uix.button import MDRaisedButton
-#from kivymd.uix.textfield import MDTextField
-#from kivy.metrics import dp
 from datetime import datetime
 import tzlocal
 import json
@@ -84,7 +75,6 @@ MDScreenManager:
                 halign: "center"
             MDIconButton:
                 icon: "plus"
-                #on_release: app.root.current = 'log_entry'
                 on_release: app.switch_to_screen('log_entry', direction="left")
         MDBoxLayout:
             orientation: 'vertical'
@@ -112,8 +102,7 @@ MDScreenManager:
             orientation: 'horizontal'
             MDButton:
                 style: "elevated"
-                on_release: 
-                    #app.root.current = 'home'
+                on_release:
                     app.switch_to_screen('home', direction="right")
                     root.clear_entries()
                 MDButtonIcon:
